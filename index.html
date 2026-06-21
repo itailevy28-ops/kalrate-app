@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KalRate Premium Experience</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght=300;400;700;900&display=swap');
+        body { font-family: 'Heebo', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .btn-animate { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-animate:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.4); }
+        .btn-animate:active { transform: translateY(-1px); }
+        .loading-pulse { animation: pulse 1.5s infinite ease-in-out; }
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 0.2; } }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between min-h-screen p-6 pb-12">
+
+    <!-- Loading Screen -->
+    <div id="loader" class="fixed inset-0 bg-slate-900 flex flex-col items-center justify-center z-50">
+        <div class="w-20 h-20 bg-slate-800 rounded-full loading-pulse flex items-center justify-center mb-4">
+            <span class="text-2xl font-black text-slate-400">KR</span>
+        </div>
+        <p class="text-slate-400 text-sm tracking-wider animate-pulse">טוען חוויה דיגיטלית...</p>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content" class="w-full max-w-md flex flex-col items-center text-center mt-8 hidden">
+        <div id="biz-logo-container" class="w-28 h-28 rounded-full bg-slate-800 p-1 shadow-xl mb-4 flex items-center justify-center overflow-hidden border-2 border-slate-700">
+            <img id="biz-logo" src="" alt="Business Logo" class="w-full h-full object-cover hidden">
+            <span id="biz-initial" class="text-3xl font-black text-slate-400"></span>
+        </div>
+        <h1 id="biz-name" class="text-2xl font-black tracking-tight mb-8 text-white px-4"></h1>
+        <div id="links-container" class="w-full space-y-4 px-4 mb-12"></div>
+    </main>
+
+    <footer class="text-center">
+        <p class="text-xs text-slate-500 tracking-widest uppercase">Powered by <span class="font-black text-slate-400">KalRate</span></p>
+    </footer>
+
+    <script>
+        function getBusinessSlug() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('u') || urlParams.get('slug');
+            return slug ? slug.trim().toLowerCase() : null;
+        }
+
+        async function fetchBusinessData(slug) {
+            const response = await fetch(`/api/get-business?slug=${slug}`);
+            if (!response.ok) {
+                if (response.status === 404) return null;
+                throw new Error('Server Error');
+            }
+            return await response.json();
+        }
+
+        function renderPage(business) {
+            if (!business) {
+                document.getElementById('loader').innerHTML = `<p class="text-red-400 font-bold px-6 text-center">שגיאה: העסק לא נמצא במערכת ❌</p>`;
+                return;
+            }
+
+            document.getElementById('biz-name').innerText = business.name;
+
+            if (business.logo && business.logo.trim() !== '') {
+                const logoImg = document.getElementById('biz-logo');
+                logoImg.src = business.logo;
+                logoImg.classList.remove('hidden');
+            } else {
+                document.getElementById('biz-initial').innerText = business.name.charAt(0);
+            }
+
+            const container = document.getElementById('links-container');
+            const channels = [
+                { id: 'google', labelHe: 'דרגו אותנו בגוגל ⭐', icon: '⭐', isPrimary: true },
+                { id: 'instagram', labelHe: 'עקבו אחרינו באינסטגרם', icon: '📸', isPrimary: false },
+                { id: 'facebook', labelHe: 'חפשו אותנו בפייסבוק', icon: '👥', isPrimary: false },
+                { id: 'tiktok', labelHe: 'אנחנו גם בטיקטוק', icon: '🎵', isPrimary: false },
+                { id: 'whatsapp', labelHe: 'דברו איתנו בוואטסאפ', icon: '💬', isPrimary: false },
+                { id: 'website', labelHe: 'בקרו באתר האינטרנט שלנו', icon: '🌐', isPrimary: false }
+            ];
+
+            channels.forEach(ch => {
+                const url = business[ch.id];
+                if (url && url.trim() !== '') {
+                    const btn = document.createElement('a');
+                    btn.href = url;
+                    btn.className = `btn-animate w-full flex items-center justify-between p-4 rounded-2xl font-bold text-lg text-white shadow-lg`;
+                    
+                    if (ch.isPrimary) {
+                        btn.classList.add('bg-blue-600', 'hover:bg-blue-500', 'border', 'border-blue-400/30');
+                    } else {
+                        btn.classList.add('bg-slate-800', 'hover:bg-slate-700', 'text-slate-200');
+                    }
+
+                    btn.innerHTML = `<span class="text-xl">${ch.icon}</span><span>${ch.labelHe}</span><span class="opacity-0">⭐</span>`;
+                    container.appendChild(btn);
+                }
+            });
+
+            document.getElementById('loader').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+        }
+
+        async function init() {
+            const currentSlug = getBusinessSlug();
+            if (!currentSlug) {
+                document.getElementById('loader').innerHTML = `<p class="text-amber-400 font-bold px-6 text-center">ברוכים הבאים ל-KalRate. אנא סרקו כרטיס תקין. 📱</p>`;
+                return;
+            }
+
+            try {
+                const business = await fetchBusinessData(currentSlug);
+                renderPage(business);
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loader').innerHTML = `<p class="text-red-400 font-bold px-6 text-center">שגיאת תקשורת במערכת הענן של קלרייט 🌐</p>`;
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
