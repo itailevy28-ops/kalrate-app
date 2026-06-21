@@ -1,6 +1,5 @@
-import Airtable from 'airtable';
-
 export default async function handler(req, res) {
+  // הגדרת Headers ל-CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -16,45 +15,58 @@ export default async function handler(req, res) {
   const baseId = process.env.AIRTABLE_BASE_ID;
   const tableName = process.env.AIRTABLE_TABLE_NAME;
 
-  // דיבאג: נראה בדיוק מה ורסל שולפת מהכספת
+  // הדפסות דיבאג פנימיות
   console.log("--- DEBUG VERCEL KEYS ---");
-  console.log("SLUG RECEIVED:", slug);
-  console.log("TOKEN EXISTS?:", !!token);
-  console.log("BASE ID VALUE:", baseId ? `[${baseId}]` : "MISSING");
-  console.log("TABLE NAME VALUE:", tableName ? `[${tableName}]` : "MISSING");
+  console.log("SLUG:", slug);
+  console.log("BASE ID:", baseId ? `[${baseId.trim()}]` : "MISSING");
+  console.log("TABLE NAME/ID:", tableName ? `[${tableName.trim()}]` : "MISSING");
 
   if (!token || !baseId || !tableName) {
-    return res.status(500).json({ error: "Missing configuration keys." });
+    return res.status(500).json({ error: "Missing configuration keys in Vercel." });
   }
 
+  if (!slug) {
+    return res.status(400).json({ error: "Slug parameter (?u=) is missing." });
+  }
+
+  // בניית הכתובת בצורה ידנית ומאובטחת עם פילטר נקי מרווחים
+  const cleanBaseId = baseId.trim();
+  const cleanTableName = tableName.trim();
+  const cleanSlug = slug.trim();
+  
+  const url = `https://api.airtable.com/v1/${cleanBaseId}/${cleanTableName}?filterByFormula=%7Bslug%7D%3D%27${encodeURIComponent(cleanSlug)}%27&maxRecords=1`;
+
   try {
-    const base = new Airtable({ apiKey: token.trim() }).base(baseId.trim());
-
-    console.log("Attempting Airtable fetch...");
+    console.log("Fetching from Airtable URL:", url);
     
-    const records = await base(tableName.trim()).select({
-      filterByFormula: `{slug} = '${slug.trim()}'`,
-      maxRecords: 1
-    }).firstPage();
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token.trim()}`,
+        'Content-Type': 'application/json'
+      }
+    });
 
-    console.log("Airtable responded successfully. Records found:", records ? records.length : 0);
+    console.log("Airtable response status:", response.status);
 
-    if (!records || records.length === 0) {
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Airtable Raw Error:", errorText);
+      return res.status(response.status).json({ error: "Error from Airtable API.", details: errorText });
+    }
+
+    const data = await response.json();
+    
+    if (!data.records || data.records.length === 0) {
+      console.log("No records found for slug:", cleanSlug);
       return res.status(404).json({ error: "Business not found in Airtable." });
     }
 
-    return res.status(200).json(records[0].fields);
+    // החזרת השדות של העסק שנמצא
+    return res.status(200).json(data.records[0].fields);
 
   } catch (error) {
-    // הדפסת השגיאה המלאה והגולמית מאיירטייבל לתוך הלוגים של ורסל
-    console.error("--- CRITICAL AIRTABLE ERROR ---");
-    console.error("Error Message:", error.message);
-    console.error("Error Status Code:", error.statusCode);
-    console.error("Full Error Object:", JSON.stringify(error));
-    
-    return res.status(500).json({ 
-      error: "Internal server error connecting to database.",
-      details: error.message 
-    });
+    console.error("Server Crash Error:", error);
+    return res.status(500).json({ error: "Internal server error.", details: error.message });
   }
 }
