@@ -22,7 +22,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Slug parameter (?u=) is missing." });
   }
 
-  // ניקוי חכם של הטוקן - מוודא שאין כפל של המילה Bearer ואין רווחים
   let cleanToken = token.trim();
   if (cleanToken.startsWith('Bearer ')) {
     cleanToken = cleanToken.replace('Bearer ', '').trim();
@@ -31,8 +30,9 @@ export default async function handler(req, res) {
   const cleanBaseId = baseId.trim();
   const cleanTableName = tableName.trim();
   const cleanSlug = slug.trim();
-  
-  const url = `https://api.airtable.com/v1/${cleanBaseId}/${cleanTableName}?filterByFormula=%7Bslug%7D%3D%27${encodeURIComponent(cleanSlug)}%27&maxRecords=1`;
+
+  const filterFormula = `{slug}='${cleanSlug}'`;
+  const url = `https://api.airtable.com/v0/${encodeURIComponent(cleanBaseId)}/${encodeURIComponent(cleanTableName)}?filterByFormula=${encodeURIComponent(filterFormula)}&maxRecords=1`;
 
   try {
     const response = await fetch(url, {
@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    
+
     if (!data.records || data.records.length === 0) {
       return res.status(404).json({ error: "Business not found in Airtable." });
     }
