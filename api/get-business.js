@@ -34,16 +34,29 @@ export default async function handler(req, res) {
   const filterFormula = `{slug}='${cleanSlug}'`;
   const url = `https://api.airtable.com/v0/${encodeURIComponent(cleanBaseId)}/${encodeURIComponent(cleanTableName)}?filterByFormula=${encodeURIComponent(filterFormula)}&maxRecords=1`;
 
-  try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${cleanToken}`,
-        'Content-Type': 'application/json'
-      }
-    });
+  const fetchWithRetry = async (attempts = 3, delayMs = 200) => {
+    for (let i = 0; i < attempts; i++) {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${cleanToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-    console.log("Airtable response status:", response.status);
+      console.log(`Airtable response status (attempt ${i + 1}):`, response.status);
+
+      if (response.status === 429 && i < attempts - 1) {
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+        continue;
+      }
+
+      return response;
+    }
+  };
+
+  try {
+    const response = await fetchWithRetry();
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -57,6 +70,7 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Business not found in Airtable." });
     }
 
+    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
     return res.status(200).json(data.records[0].fields);
 
   } catch (error) {
