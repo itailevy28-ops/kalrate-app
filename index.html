@@ -2,124 +2,312 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KalRate Premium Experience</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>KalRate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght=300;400;700;900&display=swap');
-        body { font-family: 'Heebo', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        .btn-animate { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
-        .btn-animate:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.4); }
-        .btn-animate:active { transform: translateY(-1px); }
-        .loading-pulse { animation: pulse 1.5s infinite ease-in-out; }
-        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 0.2; } }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 48px 24px 36px;
+            background: linear-gradient(160deg, #0a0a0a 0%, #1c1c2e 60%, #0f0f1a 100%);
+            transition: background 0.6s ease;
+        }
+
+        body.bg-blue   { background: linear-gradient(160deg, #050d2d 0%, #0d2b6e 60%, #0a1a4a 100%); }
+        body.bg-gray   { background: linear-gradient(160deg, #111111 0%, #2a2a2a 60%, #1a1a1a 100%); }
+        body.bg-purple { background: linear-gradient(160deg, #120a2e 0%, #2d1060 60%, #1a0a3a 100%); }
+        body.bg-green  { background: linear-gradient(160deg, #060f06 0%, #0d2e0d 60%, #0a1f0a 100%); }
+
+        /* ─── Loader ─── */
+        #loader {
+            position: fixed; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: inherit;
+            z-index: 100;
+            transition: opacity 0.5s ease;
+        }
+        #loader.fade-out { opacity: 0; pointer-events: none; }
+        .loader-ring {
+            width: 52px; height: 52px;
+            border: 2px solid rgba(255,255,255,0.08);
+            border-top-color: rgba(255,255,255,0.55);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ─── Main ─── */
+        #main-content {
+            width: 100%; max-width: 390px;
+            display: flex; flex-direction: column;
+            align-items: center;
+            opacity: 0; transform: translateY(24px);
+            transition: opacity 0.55s ease, transform 0.55s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        #main-content.visible { opacity: 1; transform: translateY(0); }
+
+        /* ─── Logo ─── */
+        .logo-wrap {
+            width: 88px; height: 88px;
+            border-radius: 50%;
+            margin-bottom: 18px;
+            background: rgba(255,255,255,0.07);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .logo-wrap img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .logo-initial {
+            font-size: 34px; font-weight: 900;
+            color: rgba(255,255,255,0.75);
+        }
+
+        /* ─── Name ─── */
+        #biz-name {
+            font-size: 24px; font-weight: 900;
+            color: #fff;
+            letter-spacing: -0.3px;
+            margin-bottom: 36px;
+            text-align: center;
+        }
+
+        /* ─── Buttons ─── */
+        .links-wrap { width: 100%; display: flex; flex-direction: column; gap: 13px; }
+
+        .link-btn {
+            width: 100%;
+            display: flex; align-items: center; justify-content: center;
+            gap: 11px;
+            padding: 17px 22px;
+            border-radius: 18px;
+            font-family: 'Heebo', sans-serif;
+            font-weight: 700; font-size: 16px;
+            color: #fff;
+            text-decoration: none;
+            border: none; cursor: pointer;
+            position: relative; overflow: hidden;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+        }
+        .link-btn::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0) 60%);
+            border-radius: inherit;
+            pointer-events: none;
+        }
+        .link-btn:active { transform: scale(0.97); }
+        .link-btn:hover  { transform: translateY(-2px); filter: brightness(1.08); }
+
+        /* Google */
+        .btn-google {
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            box-shadow: 0 6px 28px rgba(26,115,232,0.38);
+            border: 1px solid rgba(255,255,255,0.12);
+            font-size: 17px;
+        }
+
+        /* Social — icon-only, bigger padding */
+        .btn-social {
+            padding: 18px;
+            height: 64px;
+        }
+        .btn-instagram {
+            background: linear-gradient(135deg, #833ab4 0%, #c13584 40%, #e1306c 70%, #fd1d1d 100%);
+            box-shadow: 0 6px 28px rgba(193,53,132,0.38);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-facebook {
+            background: linear-gradient(135deg, #1877f2 0%, #0d5dbf 100%);
+            box-shadow: 0 6px 28px rgba(24,119,242,0.38);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            box-shadow: 0 6px 28px rgba(37,211,102,0.28);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-tiktok {
+            background: linear-gradient(135deg, #010101 0%, #1a1a2e 100%);
+            box-shadow: 0 6px 28px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.14);
+        }
+        .btn-website {
+            background: rgba(255,255,255,0.07);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 6px 28px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        /* Social grid (2 cols if multiple socials) */
+        .social-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 13px;
+            width: 100%;
+        }
+
+        /* ─── Footer ─── */
+        footer {
+            margin-top: 32px;
+            font-size: 10px; font-weight: 600;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.2);
+        }
+        footer b { color: rgba(255,255,255,0.38); font-weight: 700; }
+
+        .error-msg {
+            color: rgba(255,255,255,0.65);
+            font-size: 15px; text-align: center;
+        }
     </style>
 </head>
-<body class="flex flex-col items-center justify-between min-h-screen p-6 pb-12">
+<body>
+    <div id="loader"><div class="loader-ring"></div></div>
 
-    <!-- Loading Screen -->
-    <div id="loader" class="fixed inset-0 bg-slate-900 flex flex-col items-center justify-center z-50">
-        <div class="w-20 h-20 bg-slate-800 rounded-full loading-pulse flex items-center justify-center mb-4">
-            <span class="text-2xl font-black text-slate-400">KR</span>
+    <main id="main-content">
+        <div class="logo-wrap" id="logo-wrap">
+            <img id="biz-logo" src="" alt="logo">
+            <span class="logo-initial" id="biz-initial"></span>
         </div>
-        <p class="text-slate-400 text-sm tracking-wider animate-pulse">טוען חוויה דיגיטלית...</p>
-    </div>
-
-    <!-- Main Content -->
-    <main id="main-content" class="w-full max-w-md flex flex-col items-center text-center mt-8 hidden">
-        <div id="biz-logo-container" class="w-28 h-28 rounded-full bg-slate-800 p-1 shadow-xl mb-4 flex items-center justify-center overflow-hidden border-2 border-slate-700">
-            <img id="biz-logo" src="" alt="Business Logo" class="w-full h-full object-cover hidden">
-            <span id="biz-initial" class="text-3xl font-black text-slate-400"></span>
-        </div>
-        <h1 id="biz-name" class="text-2xl font-black tracking-tight mb-8 text-white px-4"></h1>
-        <div id="links-container" class="w-full space-y-4 px-4 mb-12"></div>
+        <h1 id="biz-name"></h1>
+        <div class="links-wrap" id="links-wrap"></div>
     </main>
 
-    <footer class="text-center">
-        <p class="text-xs text-slate-500 tracking-widest uppercase">Powered by <span class="font-black text-slate-400">KalRate</span></p>
-    </footer>
+    <footer>Powered by <b>KalRate</b></footer>
 
     <script>
-        function getBusinessSlug() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const slug = urlParams.get('u') || urlParams.get('slug');
-            return slug ? slug.trim().toLowerCase() : null;
+    const COLOR_MAP = {
+        'שחור': '',
+        'כחול': 'bg-blue',
+        'אפור': 'bg-gray',
+        'סגול': 'bg-purple',
+        'ירוק': 'bg-green'
+    };
+
+    const ICONS = {
+        google: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="white"/>
+        </svg>`,
+        instagram: `<svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`,
+        facebook: `<svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`,
+        whatsapp: `<svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`,
+        tiktok: `<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.31 6.31 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>`,
+        website: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>`
+    };
+
+    const BTN_CLASS = {
+        google: 'btn-google',
+        instagram: 'btn-instagram btn-social',
+        facebook: 'btn-facebook btn-social',
+        whatsapp: 'btn-whatsapp btn-social',
+        tiktok: 'btn-tiktok btn-social',
+        website: 'btn-website btn-social'
+    };
+
+    async function fetchBusiness(slug) {
+        const res = await fetch('/api/get-business?slug=' + encodeURIComponent(slug));
+        if (!res.ok) return null;
+        return res.json();
+    }
+
+    function renderPage(biz) {
+        // Background
+        const cls = COLOR_MAP[biz.background_color];
+        if (cls) document.body.classList.add(cls);
+
+        // Logo
+        const logoImg = document.getElementById('biz-logo');
+        const logoInitial = document.getElementById('biz-initial');
+        const logoArr = biz.logo;
+        if (logoArr && logoArr.length > 0 && logoArr[0].url) {
+            logoImg.src = logoArr[0].url;
+            logoImg.style.display = 'block';
+        } else {
+            logoInitial.textContent = (biz.name || '?').charAt(0);
         }
 
-        async function fetchBusinessData(slug) {
-            const response = await fetch(`/api/get-business?slug=${slug}`);
-            if (!response.ok) {
-                if (response.status === 404) return null;
-                throw new Error('Server Error');
-            }
-            return await response.json();
+        // Name
+        document.getElementById('biz-name').textContent = biz.name || '';
+
+        // Buttons
+        const wrap = document.getElementById('links-wrap');
+        const socialKeys = ['instagram', 'facebook', 'whatsapp', 'tiktok', 'website'];
+        const activeSocials = socialKeys.filter(k => biz[k] && biz[k].trim());
+
+        // Google — full width, always first
+        if (biz.google && biz.google.trim()) {
+            const a = document.createElement('a');
+            a.href = biz.google; a.target = '_blank'; a.rel = 'noopener noreferrer';
+            a.className = 'link-btn btn-google';
+            a.innerHTML = ICONS.google + '<span>דירוג בגוגל בטאפ אחד</span>';
+            wrap.appendChild(a);
         }
 
-        function renderPage(business) {
-            if (!business) {
-                document.getElementById('loader').innerHTML = `<p class="text-red-400 font-bold px-6 text-center">שגיאה: העסק לא נמצא במערכת ❌</p>`;
-                return;
-            }
-
-            document.getElementById('biz-name').innerText = business.name;
-
-            if (business.logo && business.logo.trim() !== '') {
-                const logoImg = document.getElementById('biz-logo');
-                logoImg.src = business.logo;
-                logoImg.classList.remove('hidden');
-            } else {
-                document.getElementById('biz-initial').innerText = business.name.charAt(0);
-            }
-
-            const container = document.getElementById('links-container');
-            const channels = [
-                { id: 'google', labelHe: 'דרגו אותנו בגוגל ⭐', icon: '⭐', isPrimary: true },
-                { id: 'instagram', labelHe: 'עקבו אחרינו באינסטגרם', icon: '📸', isPrimary: false },
-                { id: 'facebook', labelHe: 'חפשו אותנו בפייסבוק', icon: '👥', isPrimary: false },
-                { id: 'tiktok', labelHe: 'אנחנו גם בטיקטוק', icon: '🎵', isPrimary: false },
-                { id: 'whatsapp', labelHe: 'דברו איתנו בוואטסאפ', icon: '💬', isPrimary: false },
-                { id: 'website', labelHe: 'בקרו באתר האינטרנט שלנו', icon: '🌐', isPrimary: false }
-            ];
-
-            channels.forEach(ch => {
-                const url = business[ch.id];
-                if (url && url.trim() !== '') {
-                    const btn = document.createElement('a');
-                    btn.href = url;
-                    btn.className = `btn-animate w-full flex items-center justify-between p-4 rounded-2xl font-bold text-lg text-white shadow-lg`;
-                    
-                    if (ch.isPrimary) {
-                        btn.classList.add('bg-blue-600', 'hover:bg-blue-500', 'border', 'border-blue-400/30');
-                    } else {
-                        btn.classList.add('bg-slate-800', 'hover:bg-slate-700', 'text-slate-200');
-                    }
-
-                    btn.innerHTML = `<span class="text-xl">${ch.icon}</span><span>${ch.labelHe}</span><span class="opacity-0">⭐</span>`;
-                    container.appendChild(btn);
-                }
+        // Socials — grid if 2+, column if 1
+        if (activeSocials.length >= 2) {
+            const grid = document.createElement('div');
+            grid.className = 'social-grid';
+            activeSocials.forEach(key => {
+                const a = document.createElement('a');
+                a.href = biz[key]; a.target = '_blank'; a.rel = 'noopener noreferrer';
+                a.className = 'link-btn ' + BTN_CLASS[key];
+                a.innerHTML = ICONS[key];
+                grid.appendChild(a);
             });
-
-            document.getElementById('loader').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
+            wrap.appendChild(grid);
+        } else {
+            activeSocials.forEach(key => {
+                const a = document.createElement('a');
+                a.href = biz[key]; a.target = '_blank'; a.rel = 'noopener noreferrer';
+                a.className = 'link-btn ' + BTN_CLASS[key];
+                a.innerHTML = ICONS[key];
+                wrap.appendChild(a);
+            });
         }
 
-        async function init() {
-            const currentSlug = getBusinessSlug();
-            if (!currentSlug) {
-                document.getElementById('loader').innerHTML = `<p class="text-amber-400 font-bold px-6 text-center">ברוכים הבאים ל-KalRate. אנא סרקו כרטיס תקין. 📱</p>`;
+        // Show page
+        const loader = document.getElementById('loader');
+        loader.classList.add('fade-out');
+        setTimeout(() => loader.style.display = 'none', 500);
+        document.getElementById('main-content').classList.add('visible');
+    }
+
+    async function init() {
+        const params = new URLSearchParams(window.location.search);
+        const slug = params.get('u') || params.get('slug');
+        const loader = document.getElementById('loader');
+        if (!slug) {
+            loader.innerHTML = '<p class="error-msg">ברוכים הבאים ל-KalRate 📱</p>';
+            return;
+        }
+        try {
+            const biz = await fetchBusiness(slug.trim().toLowerCase());
+            if (!biz || biz.error) {
+                loader.innerHTML = '<p class="error-msg">העסק לא נמצא ❌</p>';
                 return;
             }
-
-            try {
-                const business = await fetchBusinessData(currentSlug);
-                renderPage(business);
-            } catch (error) {
-                console.error(error);
-                document.getElementById('loader').innerHTML = `<p class="text-red-400 font-bold px-6 text-center">שגיאת תקשורת במערכת הענן של קלרייט 🌐</p>`;
-            }
+            renderPage(biz);
+        } catch(e) {
+            loader.innerHTML = '<p class="error-msg">שגיאת תקשורת 🌐</p>';
         }
+    }
 
-        init();
+    init();
     </script>
 </body>
 </html>
