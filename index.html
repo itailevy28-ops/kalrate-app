@@ -25,6 +25,11 @@
         body.bg-gray   { background: linear-gradient(160deg, #111111 0%, #2a2a2a 60%, #1a1a1a 100%); }
         body.bg-purple { background: linear-gradient(160deg, #120a2e 0%, #2d1060 60%, #1a0a3a 100%); }
         body.bg-green  { background: linear-gradient(160deg, #060f06 0%, #0d2e0d 60%, #0a1f0a 100%); }
+        body.bg-red    { background: linear-gradient(160deg, #1a0000 0%, #4a0a0a 60%, #2d0000 100%); }
+        body.bg-yellow { background: linear-gradient(160deg, #1a1500 0%, #3d3000 60%, #0f0d00 100%); }
+        body.bg-orange { background: linear-gradient(160deg, #1a0d00 0%, #3d1f00 60%, #0f0800 100%); }
+        body.bg-pink   { background: linear-gradient(160deg, #2d0018 0%, #5c0f35 60%, #1a000f 100%); }
+        body.bg-white  { background: linear-gradient(160deg, #1c1c1c 0%, #3a3a3a 60%, #2a2a2a 100%); }
 
         #loader {
             position: fixed; inset: 0;
@@ -36,8 +41,7 @@
             width: 48px; height: 48px;
             border: 2px solid rgba(255,255,255,0.08);
             border-top-color: rgba(255,255,255,0.55);
-            border-radius: 50%;
-            animation: spin 0.9s linear infinite;
+            border-radius: 50%; animation: spin 0.9s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -51,14 +55,12 @@
         #main-content.visible { opacity: 1; transform: translateY(0); }
 
         .logo-wrap {
-            width: 90px; height: 90px; border-radius: 50%;
-            margin-bottom: 16px;
+            width: 90px; height: 90px; border-radius: 50%; margin-bottom: 16px;
             background: rgba(255,255,255,0.07);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.15);
             box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12);
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
         .logo-wrap img { width: 100%; height: 100%; object-fit: cover; display: none; }
         .logo-initial { font-size: 36px; font-weight: 900; color: rgba(255,255,255,0.78); }
@@ -72,12 +74,10 @@
         .links-wrap { width: 100%; display: flex; flex-direction: column; gap: 12px; }
 
         .link-btn {
-            width: 100%;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 16px;
-            font-family: 'Heebo', sans-serif; font-weight: 700;
-            color: #fff; text-decoration: none; border: none; cursor: pointer;
-            position: relative; overflow: hidden;
+            width: 100%; display: flex; align-items: center; justify-content: center;
+            border-radius: 16px; font-family: 'Heebo', sans-serif;
+            font-weight: 700; color: #fff; text-decoration: none;
+            border: none; cursor: pointer; position: relative; overflow: hidden;
             transition: transform 0.15s ease, filter 0.15s ease;
             user-select: none; -webkit-touch-callout: none;
         }
@@ -88,39 +88,32 @@
         }
         .link-btn:active { transform: scale(0.96); filter: brightness(0.9); }
 
-        /* Google */
         .btn-google {
-            flex-direction: column; gap: 7px;
-            padding: 18px 24px; min-height: 80px;
+            flex-direction: column; gap: 6px;
+            padding: 16px 24px; min-height: 80px;
             background: linear-gradient(135deg, #1557d4 0%, #1a73e8 50%, #0d5dbf 100%);
             box-shadow: 0 6px 24px rgba(26,115,232,0.4);
             border: 1px solid rgba(255,255,255,0.1);
         }
-        .google-stars { display: flex; gap: 4px; align-items: center; }
         .google-label { font-size: 17px; font-weight: 800; color: #fff; }
+        .google-stars { display: flex; gap: 4px; align-items: center; }
 
-        /* Social */
         .btn-social { padding: 18px 24px; min-height: 62px; }
-
         .btn-instagram {
             background: linear-gradient(135deg, #833ab4 0%, #c13584 40%, #e1306c 70%, #fd1d1d 100%);
-            box-shadow: 0 6px 24px rgba(193,53,132,0.4);
-            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 6px 24px rgba(193,53,132,0.4); border: 1px solid rgba(255,255,255,0.08);
         }
         .btn-facebook {
             background: linear-gradient(135deg, #1877f2 0%, #0d5dbf 100%);
-            box-shadow: 0 6px 24px rgba(24,119,242,0.4);
-            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 6px 24px rgba(24,119,242,0.4); border: 1px solid rgba(255,255,255,0.08);
         }
         .btn-tiktok {
             background: linear-gradient(135deg, #010101 0%, #1a1a2e 100%);
-            box-shadow: 0 6px 24px rgba(0,0,0,0.55);
-            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.14);
         }
         .btn-whatsapp {
             background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
-            box-shadow: 0 6px 24px rgba(37,211,102,0.3);
-            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 6px 24px rgba(37,211,102,0.3); border: 1px solid rgba(255,255,255,0.08);
         }
         .btn-site {
             background: rgba(255,255,255,0.09);
@@ -151,13 +144,17 @@
     </main>
     <footer>Powered by <b>KalRate</b></footer>
     <script>
-    // Accepts both English and Hebrew color names
     const COLOR_MAP = {
-        'Black': '', 'שחור': '',
-        'Blue': 'bg-blue', 'כחול': 'bg-blue',
-        'Gray': 'bg-gray', 'אפור': 'bg-gray',
-        'Purple': 'bg-purple', 'סגול': 'bg-purple',
-        'Green': 'bg-green', 'ירוק': 'bg-green'
+        'Black':  '',
+        'Blue':   'bg-blue',
+        'Gray':   'bg-gray',
+        'Purple': 'bg-purple',
+        'Green':  'bg-green',
+        'Red':    'bg-red',
+        'Yellow': 'bg-yellow',
+        'Orange': 'bg-orange',
+        'Pink':   'bg-pink',
+        'White':  'bg-white'
     };
 
     const STAR_SVG = `<svg width="28" height="28" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#FBBC05"/></svg>`;
@@ -178,7 +175,9 @@
     }
 
     function renderPage(biz) {
-        const cls = COLOR_MAP[biz.background_color];
+        // Use new 'color' field, fallback to old 'background_color'
+        const colorVal = biz.color || biz.background_color || '';
+        const cls = COLOR_MAP[colorVal];
         if (cls) document.body.classList.add(cls);
 
         const logoImg = document.getElementById('biz-logo');
@@ -195,23 +194,21 @@
 
         const wrap = document.getElementById('links-wrap');
 
-        // Google — always first
+        // Google first — text on top, stars on bottom
         if (biz.google && biz.google.trim()) {
             const a = document.createElement('a');
             a.href = biz.google; a.target = '_blank'; a.rel = 'noopener noreferrer';
             a.className = 'link-btn btn-google';
-            a.innerHTML = FIVE_STARS + '<span class="google-label">דרגו אותנו בגוגל</span>';
+            a.innerHTML = '<span class="google-label">דרגו אותנו בגוגל</span>' + FIVE_STARS;
             wrap.appendChild(a);
         }
 
-        // Ordered social buttons
         const order = [
             { key: 'instagram', cls: 'btn-instagram' },
             { key: 'facebook',  cls: 'btn-facebook'  },
             { key: 'tiktok',    cls: 'btn-tiktok'    },
             { key: 'whatsapp',  cls: 'btn-whatsapp'  },
         ];
-
         order.forEach(({ key, cls }) => {
             if (!biz[key] || !biz[key].trim()) return;
             const a = document.createElement('a');
@@ -221,7 +218,6 @@
             wrap.appendChild(a);
         });
 
-        // Site button — last
         if (biz.site && biz.site.trim()) {
             const a = document.createElement('a');
             a.href = biz.site; a.target = '_blank'; a.rel = 'noopener noreferrer';
