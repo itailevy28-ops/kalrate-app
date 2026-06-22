@@ -70,7 +70,7 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Business not found in Airtable." });
     }
 
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+    res.setHeader('Cache-Control', 'no-store');
     return res.status(200).json(data.records[0].fields);
 
   } catch (error) {
